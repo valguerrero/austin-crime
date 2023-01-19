@@ -77,22 +77,24 @@ FROM
 ORDER BY
 	crime_code;
 
--- Identifying crime_code duplicates
-WITH deduplicated_crime_type AS (
-	SELECT DISTINCT
-		crime_code,
-		crime_description
-	FROM
-		austin_crime.crime
-)
-SELECT
-	crime_code,
-	COUNT(*) AS frequency
+-- Ignorning duplicate crime_code values as we will be only working 
+-- with the crime_description for the visualization
+
+/*------------------------------------------
+Standardizing crime_description values for
+readability in final visualization
+------------------------------------------*/
+
+SELECT DISTINCT
+	crime_description
 FROM
-	deduplicated_crime_type
-GROUP BY
-	crime_code
-HAVING
-	COUNT(*) > 1
+	austin_crime.crime
 ORDER BY
-	frequency DESC;
+	crime_description;
+
+-- Removing expired crime_description values
+DELETE FROM austin_crime.crime WHERE crime_description LIKE '%EXPIRED%'; -- 649 rows
+
+SELECT crime_description, COUNT(*)
+FROM austin_crime.crime
+GROUP BY crime_description;
